@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sparkles Premium</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0f0f1a, #000000);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    h1 {
+      position: absolute;
+      font-size: 5rem;
+      font-weight: 800;
+      text-align: center;
+      z-index: 2;
+      background: linear-gradient(90deg, #a78bfa, #4f46e5, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px #4f46e5aa);
+      letter-spacing: 2px;
+    }
+
+    .sparkles {
+      position: relative;
+      width: 600px;
+      height: 300px;
+      overflow: hidden;
+    }
+
+    .sparkle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.9;
+      box-shadow: 0 0 10px #ffffff88, 0 0 20px #6366f1aa;
+      animation: float 5s linear infinite;
+      background: radial-gradient(circle, #ffffff, #6366f1);
+    }
+
+    @keyframes float {
+      from { transform: translateY(300px) scale(0.5); opacity: 1; }
+      to { transform: translateY(-300px) scale(1.2); opacity: 0; }
+    }
+
+    /* Gradient Lines with Animation */
+    .line {
+      position: absolute;
+      height: 2px;
+      width: 80%;
+      background: linear-gradient(to right, transparent, #6366f1, #06b6d4, transparent);
+      top: 50%;
+      left: 10%;
+      filter: blur(1.5px);
+      animation: shimmer 4s linear infinite;
+    }
+
+    .line:nth-child(2) {
+      top: 40%;
+      animation-delay: 2s;
+    }
+
+    .line:nth-child(3) {
+      top: 60%;
+      animation-delay: 1s;
+    }
+
+    @keyframes shimmer {
+      from { transform: translateX(-50%); opacity: 0.6; }
+      to { transform: translateX(50%); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Aceternity</h1>
+  <div class="sparkles">
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+  </div>
+
+  <script>
+    const container = document.querySelector(".sparkles");
+
+    function createSparkle() {
+      const sparkle = document.createElement("div");
+      sparkle.className = "sparkle";
+      const size = Math.random() * 4 + 2;
+      sparkle.style.width = sparkle.style.height = size + "px";
+      sparkle.style.left = Math.random() * 600 + "px";
+      sparkle.style.top = 300 + "px";
+      sparkle.style.animationDuration = (Math.random() * 3 + 2) + "s";
+      container.appendChild(sparkle);
+
+      setTimeout(() => sparkle.remove(), 5000);
+    }
+
+    setInterval(createSparkle, 100);
+  </script>
+</body>
+</html>
