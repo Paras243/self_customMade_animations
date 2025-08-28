@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sparkles Ultra Premium</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: radial-gradient(circle at center, #0d0d18, #000000);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    h1 {
+      position: absolute;
+      font-size: 5rem;
+      font-weight: 900;
+      text-align: center;
+      z-index: 3;
+      background: linear-gradient(90deg, #e879f9, #a78bfa, #4f46e5, #06b6d4, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 25px #6366f188);
+      letter-spacing: 3px;
+      animation: floatText 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatText {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-10px); }
+    }
+
+    .sparkles {
+      position: relative;
+      width: 700px;
+      height: 400px;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .sparkle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.9;
+      background: radial-gradient(circle, #ffffff, #60a5fa);
+      box-shadow: 0 0 10px #ffffff88, 0 0 25px #6366f1aa;
+      animation: float 6s linear infinite;
+    }
+
+    @keyframes float {
+      from { transform: translateY(400px) scale(0.5); opacity: 1; }
+      to { transform: translateY(-400px) scale(1.4); opacity: 0; }
+    }
+
+    /* Gradient Lines with glow */
+    .line {
+      position: absolute;
+      height: 2px;
+      width: 90%;
+      background: linear-gradient(to right, transparent, #e879f9, #6366f1, #06b6d4, transparent);
+      left: 5%;
+      filter: blur(2px);
+      animation: shimmer 5s linear infinite;
+    }
+
+    .line:nth-child(1) { top: 35%; animation-delay: 0s; }
+    .line:nth-child(2) { top: 50%; animation-delay: 2s; }
+    .line:nth-child(3) { top: 65%; animation-delay: 4s; }
+
+    @keyframes shimmer {
+      from { transform: translateX(-50%); opacity: 0.6; }
+      to { transform: translateX(50%); opacity: 1; }
+    }
+
+    /* Background glowing orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      animation: pulse 10s ease-in-out infinite alternate;
+    }
+
+    .orb1 {
+      width: 300px; height: 300px;
+      background: #6366f1;
+      top: 10%; left: 15%;
+    }
+
+    .orb2 {
+      width: 400px; height: 400px;
+      background: #06b6d4;
+      bottom: 10%; right: 10%;
+    }
+
+    .orb3 {
+      width: 250px; height: 250px;
+      background: #e879f9;
+      bottom: 20%; left: 5%;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); opacity: 0.25; }
+      to { transform: scale(1.3); opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Glowing Orbs Background -->
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <h1>Aceternity</h1>
+  <div class="sparkles">
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+  </div>
+
+  <script>
+    const container = document.querySelector(".sparkles");
+
+    function createSparkle() {
+      const sparkle = document.createElement("div");
+      sparkle.className = "sparkle";
+      const size = Math.random() * 5 + 2;
+      sparkle.style.width = sparkle.style.height = size + "px";
+      sparkle.style.left = Math.random() * 700 + "px";
+      sparkle.style.top = 400 + "px";
+
+      // random color glow
+      const colors = ["#60a5fa", "#a78bfa", "#e879f9", "#22d3ee", "#ffffff"];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      sparkle.style.background = `radial-gradient(circle, #fff, ${color})`;
+      sparkle.style.boxShadow = `0 0 10px ${color}aa, 0 0 25px ${color}55`;
+
+      sparkle.style.animationDuration = (Math.random() * 3 + 3) + "s";
+      container.appendChild(sparkle);
+
+      setTimeout(() => sparkle.remove(), 6000);
+    }
+
+    setInterval(createSparkle, 100);
+  </script>
+</body>
+</html>
