@@ -1,0 +1,152 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+
+// NOTE: Tailwind CSS is assumed to be available and configured in the environment.
+
+// Custom hook to check for mobile screen size without external libraries
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    // Initial check
+    checkIsMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIsMobile);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
+const App = () => {
+  const [isHovering, setIsHovering] = useState(false);
+  const isMobile = useIsMobile();
+
+  const ingredients = [
+    "Aqua (Water)",
+    "Butyrospermum Parkii (Shea) Butter",
+    "Glycerin",
+    "Cetearyl Alcohol",
+    "Dimethicone",
+    "Sodium Hyaluronate",
+    "Tocopherol (Vitamin E)",
+    "Parfum (Fragrance)",
+  ];
+
+  // Animation variants for staggered list items
+  const ingredientsVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05 + 0.5,
+        duration: 0.3,
+      },
+    }),
+  };
+
+  const containerVariants = {
+    closed: { rotateX: 0, scale: 1 },
+    open: {
+      rotateX: isMobile ? 0 : 15,
+      scale: isMobile ? 1 : 0.95,
+      transition: { duration: 0.6, ease: "easeInOut" },
+    },
+  };
+
+  const productDetailsVariants = {
+    closed: {
+      opacity: 0,
+      y: 20,
+      transition: { duration: 0.4 },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, delay: 0.2 },
+    },
+  };
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
+      <div
+        className="relative flex h-full w-full max-w-sm cursor-pointer items-center justify-center rounded-3xl"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onTouchStart={() => setIsHovering(true)}
+        onTouchEnd={() => setIsHovering(false)}
+        style={{ perspective: "1000px" }}
+      >
+        {/* Main 3D Container for hover effect */}
+        <motion.div
+          className="relative h-full w-full rounded-3xl shadow-xl transition-shadow duration-500 ease-in-out bg-white dark:bg-zinc-800"
+          variants={containerVariants}
+          animate={isHovering ? "open" : "closed"}
+          style={{ transformOrigin: isMobile ? "center center" : "bottom" }}
+        >
+          {/* Product Image */}
+          <motion.img
+            src="https://placehold.co/400x600/b5d8f3/ffffff?text=Product+Image"
+            alt="Product"
+            className="absolute z-10 w-full rounded-3xl object-cover shadow-lg"
+            initial={{ y: 0, scale: 1 }}
+            animate={isHovering ? { y: -20, scale: 1.05 } : { y: 0, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+          />
+
+          {/* Product Details Section - Appears on Hover */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 z-20 flex w-full flex-col items-center rounded-b-3xl bg-white dark:bg-zinc-800 p-6 pt-10 shadow-inner"
+            variants={productDetailsVariants}
+            animate={isHovering ? "open" : "closed"}
+          >
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+              Hydrating Lotion
+            </h2>
+            <p className="text-center text-sm text-zinc-600 dark:text-zinc-400 max-w-xs mb-4">
+              A rich and nourishing lotion formulated with natural ingredients for soft, radiant skin.
+            </p>
+
+            <motion.ul
+              className="w-full text-sm text-zinc-500 dark:text-zinc-400 text-left space-y-2"
+              initial="hidden"
+              animate={isHovering ? "visible" : "hidden"}
+            >
+              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
+                Key Ingredients
+              </h3>
+              {ingredients.map((item, i) => (
+                <motion.li
+                  key={i}
+                  variants={ingredientsVariants}
+                  custom={i}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-green-500">•</span> {item}
+                </motion.li>
+              ))}
+            </motion.ul>
+
+            <button className="mt-6 w-full rounded-full bg-zinc-900 dark:bg-zinc-100 py-3 text-white dark:text-zinc-900 font-semibold shadow-lg transition-colors hover:bg-zinc-700 dark:hover:bg-zinc-200">
+              Add to Cart
+            </button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
