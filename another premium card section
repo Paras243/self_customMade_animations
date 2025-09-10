@@ -1,0 +1,176 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+
+// Utility functions for combining Tailwind classes
+// These are included directly in the file for a self-contained component.
+function clsx(...inputs) {
+  if (typeof inputs === "string") {
+    return inputs;
+  }
+  let classes = "";
+  for (let i = 0; i < inputs.length; i++) {
+    let input = inputs[i];
+    if (typeof input === "string") {
+      classes += " " + input;
+    } else if (Array.isArray(input)) {
+      classes += " " + clsx(...input);
+    } else if (typeof input === "object") {
+      for (let key in input) {
+        if (input[key]) {
+          classes += " " + key;
+        }
+      }
+    }
+  }
+  return classes.trim();
+}
+
+function twMerge(...inputs) {
+  const classNames = clsx(...inputs).split(" ");
+  const mergedClasses = new Set(classNames.reverse());
+  return Array.from(mergedClasses).reverse().join(" ");
+}
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+// Main CreamBox component
+const CreamBox = () => {
+  const [isHovering, setIsHovering] = useState(false);
+
+  // Ingredients data
+  const ingredients = [
+    "Aqua (Water)",
+    "Butyrospermum Parkii (Shea) Butter",
+    "Glycerin",
+    "Cetearyl Alcohol",
+    "Dimethicone",
+    "Sodium Hyaluronate",
+    "Tocopherol (Vitamin E)",
+    "Parfum (Fragrance)"
+  ];
+
+  const containerVariants = {
+    hover: {
+      rotateX: 15,
+      scale: 0.9,
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    },
+    initial: {
+      rotateX: 0,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const ingredientVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delayChildren: 0.2,
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: { opacity: 1, x: 0 }
+  };
+
+  return (
+    <div
+      className="relative flex h-[450px] w-96 items-center justify-center rounded-3xl"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Container for the 3D-like hover effect */}
+      <motion.div
+        className="relative z-50 flex h-full w-full cursor-pointer items-center justify-center"
+        style={{ perspective: "1000px" }}
+        variants={containerVariants}
+        animate={isHovering ? "hover" : "initial"}
+      >
+        {/* The initial image of the closed cream box */}
+        <motion.img
+          src="https://hcj-mondane.vercel.app/assets/ProductsImage/opticare%20hair%20mask.jpeg"
+          alt="Closed Cream Box"
+          className="absolute inset-0 h-full w-full rounded-2xl object-cover shadow-lg"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: isHovering ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* The open cream box state on hover */}
+        <motion.div
+          className="absolute inset-0 flex h-full w-full flex-col items-center justify-center rounded-2xl bg-zinc-900 p-6 shadow-xl"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: isHovering ? 1 : 0, scale: isHovering ? 1 : 0.9 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+          {/* Cap of the cream box */}
+          <motion.img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgAUCVNMDRuuGsIPKTdqLgBQLZke8Z-HXqV1ZzxiZLrodsAcpQkquJZIFQZRMv3pzg-Jc&usqp=CAU"
+            alt="Cream Box Cap"
+            className="z-10 w-full rounded-t-2xl object-cover"
+            initial={{ y: 0 }}
+            animate={{ y: isHovering ? -150 : 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          />
+
+          {/* The space for ingredients to appear */}
+          <div className="flex h-full w-full flex-col justify-center px-4">
+            <motion.div
+              className="w-full text-center text-sm font-light text-neutral-400"
+              variants={ingredientVariants}
+              initial="hidden"
+              animate={isHovering ? "visible" : "hidden"}
+            >
+              <h4 className="mb-2 text-base font-semibold text-neutral-200">Key Ingredients</h4>
+              <motion.ul className="list-inside list-disc space-y-1 text-left">
+                {ingredients.map((item, index) => (
+                  <motion.li
+                    key={index}
+                    variants={itemVariants}
+                  >
+                    {item}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </motion.div>
+          </div>
+
+          {/* The base of the cream box */}
+          <motion.img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBaOBSF4xTk-W_lnxLQjpA4K2Nv9AlqD3QabmzipKROvpzk_3FZ6FZQSXPXIjEEZ06SNs&usqp=CAU"
+            alt="Cream Box Base"
+            className="w-full rounded-b-2xl object-cover"
+            initial={{ y: 0 }}
+            animate={{ y: isHovering ? 50 : 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+// Main App component to render the demo
+export default function App() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-slate-950">
+      <CreamBox />
+    </div>
+  );
+}
