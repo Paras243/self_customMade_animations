@@ -1,0 +1,185 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+
+// NOTE: Tailwind CSS is assumed to be available and configured in the environment.
+
+// Custom hook to check for mobile screen size without external libraries
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    // Initial check
+    checkIsMobile();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkIsMobile);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
+const App = () => {
+  const [isHovering, setIsHovering] = useState(false);
+  const isMobile = useIsMobile();
+
+  const ingredients = [
+    "Aqua (Water)",
+    "Butyrospermum Parkii (Shea) Butter",
+    "Glycerin",
+    "Cetearyl Alcohol",
+    "Dimethicone",
+    "Sodium Hyaluronate",
+    "Tocopherol (Vitamin E)",
+    "Parfum (Fragrance)",
+  ];
+
+  // Animation variants for staggered list items
+  const ingredientsVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05 + 0.5,
+        duration: 0.3,
+      },
+    }),
+  };
+
+  const containerVariants = {
+    closed: { rotateX: 0, scale: 1 },
+    open: {
+      rotateX: isMobile ? 0 : 15,
+      scale: isMobile ? 1 : 0.95,
+      transition: { duration: 0.6, ease: "easeInOut" },
+    },
+  };
+
+  const productDetailsVariants = {
+    closed: {
+      opacity: 0,
+      y: 20,
+      transition: { duration: 0.4 },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, delay: 0.2 },
+    },
+  };
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-zinc-50 dark:bg-zinc-950 p-4">
+      <div
+        className="relative flex h-full w-full max-w-sm cursor-pointer items-center justify-center rounded-3xl"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onTouchStart={() => setIsHovering(true)}
+        onTouchEnd={() => setIsHovering(false)}
+        style={{ perspective: "1000px" }}
+      >
+        {/* Main 3D Container for hover effect */}
+        <motion.div
+          className="relative h-full w-full rounded-3xl shadow-xl transition-shadow duration-500 ease-in-out"
+          variants={containerVariants}
+          animate={isHovering ? "open" : "closed"}
+        >
+          {/* The initial image of the closed cream box */}
+          <motion.img
+            src="https://placehold.co/400x400/C4B3A8/333333?text=Hand+Cream+Box"
+            alt="Closed Cream Box"
+            className="absolute inset-0 h-full w-full rounded-3xl object-cover"
+            initial={{ opacity: 1, filter: "brightness(1)" }}
+            animate={{
+              opacity: isHovering ? 0 : 1,
+              filter: isHovering ? "brightness(0.8)" : "brightness(1)",
+            }}
+            transition={{ duration: 0.5 }}
+          />
+
+          {/* The open cream box state on hover */}
+          <motion.div
+            className="absolute inset-0 flex h-full w-full flex-col items-center justify-between rounded-3xl bg-white/90 p-8 shadow-2xl backdrop-blur-sm dark:bg-zinc-800/90"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHovering ? 1 : 0 }}
+            transition={{ duration: 0.4, delay: isHovering ? 0.2 : 0 }}
+          >
+            {/* Cap of the cream box - animating up and out of view */}
+            <motion.img
+              src="https://placehold.co/400x100/A09187/333333?text=Cap"
+              alt="Cream Box Cap"
+              className="z-10 h-1/4 w-full rounded-t-3xl object-cover"
+              initial={{ y: 0 }}
+              animate={{ y: isHovering ? "-100%" : 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            />
+
+            {/* Product details and ingredients */}
+            <div className="flex h-full w-full flex-col items-center justify-center space-y-4 text-center">
+              <motion.div
+                variants={productDetailsVariants}
+                animate={isHovering ? "open" : "closed"}
+              >
+                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                  Daily Hydration Cream
+                </h2>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  A rich, non-greasy formula that soothes and deeply moisturizes.
+                </p>
+              </motion.div>
+
+              <div className="h-px w-24 bg-zinc-300 dark:bg-zinc-600"></div>
+
+              <motion.div
+                className="w-full text-center text-sm font-light text-zinc-500 dark:text-zinc-400"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: isHovering ? 1 : 0, y: isHovering ? 0 : 20 }}
+                transition={{ delay: isHovering ? 0.3 : 0, duration: 0.5 }}
+              >
+                <h4 className="mb-2 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                  Key Ingredients
+                </h4>
+                <ul className="list-inside list-none space-y-1 text-left">
+                  {ingredients.map((item, index) => (
+                    <motion.li
+                      key={index}
+                      custom={index}
+                      variants={ingredientsVariants}
+                      initial="hidden"
+                      animate={isHovering ? "visible" : "hidden"}
+                    >
+                      {item}
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            </div>
+
+            {/* The base of the cream box - animating down and out of view */}
+            <motion.img
+              src="https://placehold.co/400x100/A09187/333333?text=Base"
+              alt="Cream Box Base"
+              className="z-10 h-1/4 w-full rounded-b-3xl object-cover"
+              initial={{ y: 0 }}
+              animate={{ y: isHovering ? "100%" : 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            />
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
