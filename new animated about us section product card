@@ -1,0 +1,206 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+
+// Utility functions for combining Tailwind classes
+function clsx(...inputs) {
+  let classes = "";
+  for (let i = 0; i < inputs.length; i++) {
+    let input = inputs[i];
+    if (typeof input === "string") {
+      classes += " " + input;
+    } else if (Array.isArray(input)) {
+      classes += " " + clsx(...input);
+    } else if (typeof input === "object") {
+      for (let key in input) {
+        if (input[key]) {
+          classes += " " + key;
+        }
+      }
+    }
+  }
+  return classes.trim();
+}
+
+function twMerge(...inputs) {
+  const classNames = clsx(...inputs).split(" ");
+  const mergedClasses = new Set(classNames.reverse());
+  return Array.from(mergedClasses).reverse().join(" ");
+}
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+// Main CreamBox component
+const CreamBox = () => {
+  const [isHovering, setIsHovering] = useState(false);
+
+  // Ingredients data
+  const ingredients = [
+    "Aqua (Water)",
+    "Butyrospermum Parkii (Shea) Butter",
+    "Glycerin",
+    "Cetearyl Alcohol",
+    "Dimethicone",
+    "Sodium Hyaluronate",
+    "Tocopherol (Vitamin E)",
+    "Parfum (Fragrance)"
+  ];
+
+  const containerVariants = {
+    hover: {
+      rotateX: 15,
+      rotateY: 5,
+      rotateZ: 2,
+      scale: 1.05,
+      y: -10,
+      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    },
+    initial: {
+      rotateX: 0,
+      rotateY: 0,
+      rotateZ: 0,
+      scale: 1,
+      y: 0,
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const openBoxVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 150,
+        damping: 15,
+        mass: 1
+      }
+    }
+  };
+
+  const ingredientVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delayChildren: 0.2,
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -10, scale: 0.8 },
+    visible: { opacity: 1, x: 0, scale: 1, transition: { type: "spring", stiffness: 200, damping: 12 } }
+  };
+
+  return (
+    <div
+      className="relative flex h-[450px] w-96 items-center justify-center rounded-3xl"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Container for the 3D-like hover effect */}
+      <motion.div
+        className="relative z-50 flex h-full w-full cursor-pointer items-center justify-center"
+        style={{ perspective: "1000px" }}
+        variants={containerVariants}
+        animate={isHovering ? "hover" : "initial"}
+      >
+        {/* The initial image of the closed cream box */}
+        <motion.img
+          src="https://cdn.prod.website-files.com/642d682a6e4ca0d303c81fdf/646332f7bdc5ca90deb154cd_White%20Cream%20Jar%20Mockup.webp"
+          alt="Closed Cream Box"
+          className="absolute inset-0 h-full w-full rounded-3xl object-cover shadow-xl"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: isHovering ? 0 : 1 }}
+          transition={{ duration: 0.3 }}
+        />
+
+        {/* The open cream box state on hover */}
+        <motion.div
+          className="absolute inset-0 flex h-full w-full flex-col items-center justify-center rounded-3xl bg-zinc-900 px-6 py-4 shadow-xl"
+          variants={openBoxVariants}
+          initial="hidden"
+          animate={isHovering ? "visible" : "hidden"}
+        >
+          {/* Cap of the cream box - now with more dramatic separation */}
+          <motion.img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgAUCVNMDRuuGsIPKTdqLgBQLZke8Z-HXqV1ZzxiZLrodsAcpQkquJZIFQZRMv3pzg-Jc&usqp=CAU"
+            alt="Cream Box Cap"
+            className="z-10 w-full rounded-t-3xl object-cover"
+            initial={{ y: 0, rotateX: 0, rotateZ: 0 }}
+            animate={{ y: isHovering ? -100 : 0, rotateX: isHovering ? 30 : 0, rotateZ: isHovering ? 5 : 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          />
+
+          {/* The space for ingredients to appear - adjusted for better visibility */}
+          <div className="flex w-full flex-col justify-center px-4 h-[100px]">
+            <motion.div
+              className="w-full text-center text-sm font-light text-neutral-400"
+              variants={ingredientVariants}
+              initial="hidden"
+              animate={isHovering ? "visible" : "hidden"}
+            >
+              <motion.h4
+                className="mb-2 text-base font-semibold text-neutral-200"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: isHovering ? 1 : 0, scale: isHovering ? 1 : 0.8 }}
+                transition={{ delay: 0.3 }}
+              >
+                Key Ingredients
+              </motion.h4>
+              <motion.ul className="list-inside list-disc space-y-1 text-left">
+                {ingredients.map((item, index) => (
+                  <motion.li
+                    key={index}
+                    variants={itemVariants}
+                  >
+                    {item}
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </motion.div>
+          </div>
+
+          {/* The base of the cream box - now with more dramatic separation */}
+          <motion.img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBaOBSF4xTk-W_lnxLQjpA4K2Nv9AlqD3QabmzipKROvpzk_3FZ6FZQSXPXIjEEZ06SNs&usqp=CAU"
+            alt="Cream Box Base"
+            className="w-full rounded-b-3xl object-cover"
+            initial={{ y: 0, rotateZ: 0 }}
+            animate={{ y: isHovering ? 100 : 0, rotateZ: isHovering ? -5 : 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+// Main App component to render the demo
+export default function App() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-slate-950">
+      <div className="relative flex h-screen w-full items-center justify-center overflow-hidden">
+        {/* Radial gradient background effect */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-black"></div>
+        <div className="absolute inset-0 z-0 h-full w-full bg-slate-950/40 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]"></div>
+        <CreamBox />
+      </div>
+    </div>
+  );
+}
