@@ -1,0 +1,183 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion, useSpring, useTransform } from "framer-motion";
+
+// NOTE: Tailwind CSS is assumed to be available and configured in the environment.
+
+// Custom hook to check for mobile screen size
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
+// Main App component
+const App = () => {
+  const [isHovering, setIsHovering] = useState(false);
+  const isMobile = useIsMobile();
+
+  const ingredients = [
+    "Aqua (Water)",
+    "Butyrospermum Parkii (Shea) Butter",
+    "Glycerin",
+    "Cetearyl Alcohol",
+    "Dimethicone",
+    "Sodium Hyaluronate",
+    "Tocopherol (Vitamin E)",
+    "Parfum (Fragrance)",
+  ];
+
+  // Use useSpring for a smoother, more responsive 3D parallax effect
+  const mouseX = useSpring(0, { stiffness: 200, damping: 20 });
+  const mouseY = useSpring(0, { stiffness: 200, damping: 20 });
+
+  const handleMouseMove = (e) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { left, top, width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left - width / 2) / (width / 2);
+    const y = (clientY - top - height / 2) / (height / 2);
+    mouseX.set(x * -15);
+    mouseY.set(y * 15);
+  };
+
+  // Use useTransform for parallax effect
+  const parallaxImgX = useTransform(mouseX, (x) => x * 1.5);
+  const parallaxImgY = useTransform(mouseY, (y) => y * 1.5);
+  const parallaxTextX = useTransform(mouseX, (x) => x * 0.5);
+  const parallaxTextY = useTransform(mouseY, (y) => y * 0.5);
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-[#1a1a1a] p-4 text-white">
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      <style>
+        {`
+          body {
+            font-family: 'Montserrat', sans-serif;
+          }
+          .title-font {
+            font-family: 'Cormorant Garamond', serif;
+          }
+          .card-container {
+            background: radial-gradient(circle at 50% 120%, rgba(20, 20, 20, 0.9) 0%, rgba(26, 26, 26, 1) 40%, rgba(26, 26, 26, 1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+          }
+          .card-container:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+          }
+        `}
+      </style>
+      <div
+        className="relative flex h-[650px] w-full max-w-[350px] cursor-pointer items-center justify-center rounded-3xl transition-all duration-500 ease-in-out"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onTouchStart={() => setIsHovering(true)}
+        onTouchEnd={() => setIsHovering(false)}
+        onMouseMove={isMobile ? null : handleMouseMove}
+        style={{ perspective: "1500px" }}
+      >
+        {/* Main 3D Container with Parallax and Hover Effects */}
+        <motion.div
+          className="relative h-full w-full rounded-3xl transition-shadow duration-500 ease-in-out card-container overflow-hidden"
+          style={{
+            transformOrigin: "center bottom",
+            rotateY: mouseX,
+            rotateX: mouseY
+          }}
+        >
+          {/* Animated Glow Effect */}
+          <motion.div
+            className="absolute -inset-16 rounded-full bg-yellow-500/30 blur-3xl opacity-0"
+            animate={{ opacity: isHovering ? 1 : 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          ></motion.div>
+
+          {/* Product Image and Details - All within a single container for cohesive animation */}
+          <motion.div
+            className="flex flex-col h-full w-full justify-start items-center p-6 text-center pt-10"
+            style={isMobile ? {} : { x: parallaxTextX, y: parallaxTextY }}
+          >
+            {/* Product Image with Parallax */}
+            <motion.img
+              src="https://placehold.co/400x600/60a5fa/ffffff?text=Product+Image"
+              alt="Product"
+              className="z-10 w-[80%] rounded-3xl object-contain"
+              style={isMobile ? {} : { x: parallaxImgX, y: parallaxImgY }}
+              animate={{ y: isHovering ? -60 : 0, scale: isHovering ? 1.2 : 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+            />
+            
+            {/* Product Title and Description */}
+            <motion.h2
+              className="title-font text-4xl font-semibold text-white mt-8 mb-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Hydrating Lotion
+            </motion.h2>
+            <motion.p
+              className="text-sm text-gray-400 max-w-xs mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              A rich and nourishing lotion formulated with natural ingredients for soft, radiant skin.
+            </motion.p>
+          </motion.div>
+
+          {/* Hover-based ingredients and button section */}
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 z-20 flex w-full flex-col items-center rounded-b-3xl bg-black/80 backdrop-blur-md p-6 pt-12 shadow-inner"
+            animate={{ opacity: isHovering ? 1 : 0, y: isHovering ? 0 : 50 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            style={isMobile ? {} : { x: parallaxTextX, y: parallaxTextY }}
+          >
+            <motion.ul
+              className="w-full text-sm text-gray-500 text-left space-y-2 mb-4"
+              initial="hidden"
+              animate={isHovering ? "visible" : "hidden"}
+            >
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Key Ingredients
+              </h3>
+              {ingredients.map((item, i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={isHovering ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                  transition={{ delay: i * 0.05 + 0.5, duration: 0.3 }}
+                  className="flex items-center gap-2 text-gray-300"
+                >
+                  <span className="text-yellow-500 font-bold">•</span> {item}
+                </motion.li>
+              ))}
+            </motion.ul>
+
+            <button className="w-full rounded-full bg-yellow-500 py-3 text-black font-semibold shadow-lg transition-all duration-300 hover:bg-yellow-400 hover:scale-105">
+              Add to Cart
+            </button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
